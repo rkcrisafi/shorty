@@ -1,0 +1,1 @@
+json.extract! @url, :short_url, :long_url, :created_at
