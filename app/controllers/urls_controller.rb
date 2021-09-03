@@ -1,7 +1,6 @@
 class UrlsController < ApplicationController
 
     def show
-        puts request.path
         short_url = build_url(params[:path])
         @url = Url.find_by(short_url: short_url)
         if @url.present?
@@ -21,9 +20,15 @@ class UrlsController < ApplicationController
                 return
             end
         else
-            short_url = build_url(SecureRandom.alphanumeric(7))
-            while Url.where(short_url: short_url).present?
+            @url = url = Url.find_by(long_url: url_params[:long_url])
+            if @url.present?
+                render :show
+                return
+            else
                 short_url = build_url(SecureRandom.alphanumeric(7))
+                while Url.where(short_url: short_url).present?
+                    short_url = build_url(SecureRandom.alphanumeric(7))
+                end
             end
         end
 
@@ -42,66 +47,4 @@ class UrlsController < ApplicationController
         params.require(:url).permit(:long_url, :custom_back_half)
     end
 
-
-end
-
-
-def post_test
-    require 'net/http'
-    require 'json'
-  
-    @host = 'localhost'
-    @port = '3000'
-  
-    @path = "/hello_custom"
-
-
-
-    @body = { "url" => { "long_url" => long_url, "custom_back_half" => 'hello_custom_half' }}.to_json
-
-  
-    request = Net::HTTP::Post.new(@path, initheader = {'Content-Type' =>'application/json'})
-    request.body = @body
-    response = Net::HTTP.new(@host, @port).start {|http| http.request(request) }
-    puts "Response #{response.code} #{response.message}: #{response.body}"
-end
-
-def get_test
-    require 'net/http'
-    require 'json'
-  
-    @host = 'localhost'
-    @port = '3000'
-  
-    @path = "/hello_custom"
-
-
-
-    # @body = { "url" => { "long_url" => long_url, "custom_back_half" => 'hello_custom_half' }}.to_json
-
-  
-    request = Net::HTTP::Get.new(@path, initheader = {'Content-Type' =>'application/json'})
-    # request.body = @body
-    response = Net::HTTP.new(@host, @port).start {|http| http.request(request) }
-    puts "Response #{response.code} #{response.message}: #{response.body}"
-end
-
-def get_stats_test
-    require 'net/http'
-    require 'json'
-  
-    @host = 'localhost'
-    @port = '3000'
-  
-    @path = "/stats/hello_custom"
-
-
-
-    # @body = { "url" => { "long_url" => long_url, "custom_back_half" => 'hello_custom_half' }}.to_json
-
-  
-    request = Net::HTTP::Get.new(@path, initheader = {'Content-Type' =>'application/json'})
-    # request.body = @body
-    response = Net::HTTP.new(@host, @port).start {|http| http.request(request) }
-    puts "Response #{response.code} #{response.message}: #{response.body}"
 end
